@@ -29,34 +29,38 @@ app.use(session ({
   saveUninitialized:false
 }));
 
-let users =[{username:"april",password:"p@ssw0rd"},{username:"water", password:"essentia"}];
+let users =[{username:"april",password:"password"},{username:"water", password:"essentia"}];
 let messages = [];
 
 //set-up the main endpoint
 app.get("/", function(req, res){
-    res.render("index");
+    res.render("login");
   });
 
 //render the login page
-app.get("/login", function(req, res){
-  res.render("login");
-});
+// app.get("/login", function(req, res){
+//   res.render("login");
+// });
 
 //retrieve information from login
 app.post("/login", function(req, res){
   let loggedinUser;
 
-//check every user entry for errors
-  users.forEach(function(user){
-    if(user.username === req.body.username) {
-      loggedinUser = user;
-    }
-  });
+users.forEach(function(user){
+  if(user.username === req.body.username) {
+    loggedinUser = user;
+  }else {
+    loggedinUser = [{
+      username:"",
+      password:""
+    }];
+  }
+});
+req.checkBody("username", "Enter a valid username:").notEmpty();
+req.checkBody("password", "Enter a valid password.").notEmpty();
+req.checkBody("password", "Invalid username and password!").equals(loggedinUser.password);
 
-  req.checkBody("username", "Enter a valid username:").notEmpty();
-  req.checkBody("password", "Enter a valid password.").notEmpty();
-  req.checkBody("password", "Invalid username and password!").equals(loggedinUser.password);
-
+// check every user entry for errors
   let errors = req.validationErrors();   //an array of errors
   if (errors){
     errors.forEach(function(error){
@@ -64,14 +68,9 @@ app.post("/login", function(req, res){
     });
     res.render("login",{errors:messages});
   }else{
-    req.session.username = req.body.username;
-    req.session.password = req.body.password;
-
     res.redirect("/");
-    res.render("/",{username:req.session.username});
-  }
+    }
 });
-
 
   //reading the information from user
   app.get("/", function(req, res){
