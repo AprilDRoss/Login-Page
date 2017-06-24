@@ -28,59 +28,35 @@ app.use(session ({
   resave:false,
   saveUninitialized:false
 }));
-
-let users =[{username:"april",password:"password"},{username:"water", password:"essentia"}];
 let messages = [];
-
-//set-up the main endpoint
-app.get("/", function(req, res){
-    res.render("login");
-  });
-
-//render the login page
-// app.get("/login", function(req, res){
-//   res.render("login");
-// });
+//set-up the login endpoint
+  app.get("/login", function(req, res){
+      res.render("login", {error:messages});
+    });
 
 //retrieve information from login
 app.post("/login", function(req, res){
-  let loggedinUser;
+  console.log(req.body.username);
+  req.checkBody("username",'Invalid username').notEmpty();
+  req.checkBody("password", 'Invalid password').notEmpty().isLength({max: 10});
 
-users.forEach(function(user){
-  if(user.username === req.body.username) {
-    loggedinUser = user;
-  }else {
-    loggedinUser = [{
-      username:"",
-      password:""
-    }];
+  let errors = req.validationErrors();
+
+  if(errors){
+     errors.forEach(function (error){  //loop thru each entry
+     messages.push(error.msg);
+  });
+  res.render("/login",{errors:messages});
+} else{
+  req.session.username = req.body.username;
+  res.redirect("/");
   }
 });
-req.checkBody("username", "Enter a valid username:").notEmpty();
-req.checkBody("password", "Enter a valid password.").notEmpty();
-req.checkBody("password", "Invalid username and password!").equals(loggedinUser.password);
 
-// check every user entry for errors
-  let errors = req.validationErrors();   //an array of errors
-  if (errors){
-    errors.forEach(function(error){
-      messages.push(error.msg);
-    });
-    res.render("login",{errors:messages});
-  }else{
-    res.redirect("/");
-    }
-});
-
-  //reading the information from user
-  app.get("/", function(req, res){
-    //render the user.mustache page
-    // res.render("user")
-    res.render("/",{username:req.session.username});
+//set-up the main endpoint
+app.get("/", function(req, res){
+    res.render("index",{username:req.session.username});
   });
-
-//keep username and password in users
-   //users.push(req.body.username, req.body.password);
 
 app.listen(8080, function(){
   console.log("App is running on localhost:8080.")
