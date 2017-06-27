@@ -43,6 +43,7 @@ app.post("/login", function(req, res){
   let errors = req.validationErrors();
 
   if(errors){
+    console.log(errors);
      errors.forEach(function (error){  //loop thru each entry
      messages.push(error.msg);
   });
