@@ -31,9 +31,9 @@ app.use(session ({
 let messages = [];
 //set-up the login endpoint
   app.get("/login", function(req, res){
-      res.render("login", {error:messages});
+   res.render("login",{errors:messages});
     });
-
+    
 //retrieve information from login
 app.post("/login", function(req, res){
   console.log(req.body.username);
@@ -47,7 +47,7 @@ app.post("/login", function(req, res){
      errors.forEach(function (error){  //loop thru each entry
      messages.push(error.msg);
   });
-  res.render("/login",{errors:messages});
+  res.render("login",{errors:messages});
 } else{
   req.session.username = req.body.username;
   res.redirect("/");
@@ -56,9 +56,13 @@ app.post("/login", function(req, res){
 
 //set-up the main endpoint
 app.get("/", function(req, res){
+  if(req.session.username){
     res.render("index",{username:req.session.username});
+  }else {
+      res.redirect("/login");
+  }
   });
 
-app.listen(8080, function(){
-  console.log("App is running on localhost:8080.")
+app.listen(8000, function(){
+  console.log("App is running on localhost:8000.")
 });
