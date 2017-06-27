@@ -29,16 +29,30 @@ app.use(session ({
   saveUninitialized:false
 }));
 let messages = [];
+
+let user = [{username:"april", password:"adam4"}];
+//console.log(users);
+
 //set-up the login endpoint
   app.get("/login", function(req, res){
    res.render("login",{errors:messages});
     });
-    
+
 //retrieve information from login
 app.post("/login", function(req, res){
-  console.log(req.body.username);
+  let loggedUser;
+
+  user.forEach(function(user){
+    if(user.username === req.body.username){
+      loggedUser = user;
+    } else{
+      res.render("login",{errrors:messages});
+    }
+  });
+  //console.log(req.body.username);
   req.checkBody("username",'Invalid username').notEmpty();
   req.checkBody("password", 'Invalid password').notEmpty().isLength({max: 10});
+  req.checkBody("password", 'Invalid username and password combination.').equals(loggedUser.password);
 
   let errors = req.validationErrors();
 
@@ -50,8 +64,8 @@ app.post("/login", function(req, res){
   res.render("login",{errors:messages});
 } else{
   req.session.username = req.body.username;
-  res.redirect("/");
   }
+  res.redirect("/");
 });
 
 //set-up the main endpoint
