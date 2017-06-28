@@ -45,8 +45,9 @@ app.post("/login", function(req, res){
   user.forEach(function(user){
     if(user.username === req.body.username){
       loggedUser = user;
-    } else{
-      res.render("login",{errrors:messages});
+      console.log(loggedUser);
+    }else {
+      res.render("login",{errors:messages});
     }
   });
   //console.log(req.body.username);
